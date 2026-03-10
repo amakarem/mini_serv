@@ -11,8 +11,8 @@
 
 typedef struct s_client
 {
-    int id;
-    char msg[MAX_MSG_SIZE];
+	int	id;
+	char	msg[MAX_MSG_SIZE];
 } t_client;
 
 t_client clients[1024];
@@ -102,7 +102,6 @@ int main(int argc, char **argv)
 						brodcast(fd, msg);
 						memmove(clients[fd].msg, line + 1, strlen(line + 1) + 1);
 					}
-					
 				}
 			}
 		}
