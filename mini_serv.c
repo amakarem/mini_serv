@@ -28,8 +28,10 @@ int error_msg(char * msg)
 void brodcast(int sender, char *msg)
 {
 	for(int fd = 0; fd <= max_fd; fd++)
+	{
 		if (FD_ISSET(fd, &write_set) && fd != sender)
 			send(fd, msg, strlen(msg), 0);
+	}
 }
 
 int main(int argc, char **argv)
