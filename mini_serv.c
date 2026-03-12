@@ -11,15 +11,15 @@
 
 typedef struct s_client
 {
-	int	id;
-	char	msg[MAX_MSG_SIZE];
+	int id;
+	char msg[MAX_MSG_SIZE];
 } t_client;
 
 t_client clients[1024];
 fd_set active, read_set, write_set;
 int max_fd, next_id;
 
-int error_msg(char * msg)
+int error_msg(char *msg)
 {
 	fprintf(stderr, "%s\n", msg);
 	return (1);
@@ -27,7 +27,7 @@ int error_msg(char * msg)
 
 void brodcast(int sender, char *msg)
 {
-	for(int fd = 0; fd <= max_fd; fd++)
+	for (int fd = 0; fd <= max_fd; fd++)
 	{
 		if (FD_ISSET(fd, &write_set) && fd != sender)
 			send(fd, msg, strlen(msg), 0);
