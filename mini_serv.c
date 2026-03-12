@@ -7,15 +7,15 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#define MAX_MSG_SIZE 1000000
+#define MAX_MSG_SIZE 1000000 // need to be removed
 
 typedef struct s_client
 {
 	int id;
-	char msg[MAX_MSG_SIZE];
+	char msg[MAX_MSG_SIZE]; // BUFSIZ
 } t_client;
 
-t_client clients[1024];
+t_client clients[1024]; // FD_SETSIZE
 fd_set active, read_set, write_set;
 int max_fd, next_id;
 
@@ -47,8 +47,8 @@ int main(int argc, char **argv)
 	struct sockaddr_in serv;
 	memset(&serv, 0, sizeof(serv));
 	serv.sin_family = AF_INET;
-	serv.sin_addr.s_addr = inet_addr("127.0.0.1"); // or htonl(2130706433);
-	serv.sin_port = htons(atoi(argv[1]));// port range must be between 0 and 65535
+	serv.sin_addr.s_addr = inet_addr("127.0.0.1"); // or htonl(2130706433); or  htonl(INADDR_LOOPBACK);
+	serv.sin_port = htons(atoi(argv[1]));		   // port range must be between 0 and 65535
 	if (bind(sockfd, (struct sockaddr *)&serv, sizeof(serv)) < 0)
 		return (error_msg("Fatal error\n"));
 	if (listen(sockfd, 10) < 0)
@@ -93,13 +93,23 @@ int main(int argc, char **argv)
 					buf[n] = 0;
 					strcat(clients[fd].msg, buf);
 					char *line;
-					while ((line = strchr(clients[fd].msg, '\n')))
+					while ((line = strstr(clients[fd].msg, "\n")))
 					{
 						*line = 0;
 						char msg[MAX_MSG_SIZE + 21];
 						sprintf(msg, "client %d: %s\n", clients[fd].id, clients[fd].msg);
 						brodcast(fd, msg);
-						memmove(clients[fd].msg, line + 1, strlen(line + 1) + 1);
+						// memmove(clients[fd].msg, line + 1, strlen(line + 1) + 1);
+						char *src = line + 1;
+						char *dst = clients[fd].msg;
+
+						while (*src)
+						{
+							*dst = *src;
+							dst++;
+							src++;
+						}
+						*dst = '\0';
 					}
 				}
 			}
