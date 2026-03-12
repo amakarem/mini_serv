@@ -21,7 +21,7 @@ int max_fd, next_id;
 
 int error_msg(char *msg)
 {
-	fprintf(stderr, "%s\n", msg);
+	write(2, msg, strlen(msg));
 	return (1);
 }
 
@@ -37,10 +37,10 @@ void brodcast(int sender, char *msg)
 int main(int argc, char **argv)
 {
 	if (argc != 2)
-		return (error_msg("Wrong number of arguments"));
+		return (error_msg("Wrong number of arguments\n"));
 	int sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	if (sockfd < 0)
-		return (error_msg("Fatal error"));
+		return (error_msg("Fatal error\n"));
 	max_fd = sockfd;
 	FD_ZERO(&active);
 	FD_SET(sockfd, &active);
@@ -50,9 +50,9 @@ int main(int argc, char **argv)
 	serv.sin_addr.s_addr = inet_addr("127.0.0.1"); // or htonl(2130706433);
 	serv.sin_port = htons(atoi(argv[1]));// port range must be between 0 and 65535
 	if (bind(sockfd, (struct sockaddr *)&serv, sizeof(serv)) < 0)
-		return (error_msg("Fatal error"));
+		return (error_msg("Fatal error\n"));
 	if (listen(sockfd, 10) < 0)
-		return (error_msg("Fatal error"));
+		return (error_msg("Fatal error\n"));
 	while (1)
 	{
 		read_set = write_set = active;
@@ -73,7 +73,7 @@ int main(int argc, char **argv)
 				clients[client].msg[0] = 0;
 				FD_SET(client, &active);
 				char msg[100];
-				snprintf(msg, sizeof(msg), "server: client %d just arrived\n", clients[client].id);
+				sprintf(msg, "server: client %d just arrived\n", clients[client].id);
 				brodcast(client, msg);
 			}
 			else
@@ -83,7 +83,7 @@ int main(int argc, char **argv)
 				if (n <= 0)
 				{
 					char msg[100];
-					snprintf(msg, sizeof(msg), "server: client %d just left\n", clients[fd].id);
+					sprintf(msg, "server: client %d just left\n", clients[fd].id);
 					brodcast(fd, msg);
 					FD_CLR(fd, &active);
 					close(fd);
@@ -97,7 +97,7 @@ int main(int argc, char **argv)
 					{
 						*line = 0;
 						char msg[MAX_MSG_SIZE + 21];
-						snprintf(msg, sizeof(msg), "client %d: %s\n", clients[fd].id, clients[fd].msg);
+						sprintf(msg, "client %d: %s\n", clients[fd].id, clients[fd].msg);
 						brodcast(fd, msg);
 						memmove(clients[fd].msg, line + 1, strlen(line + 1) + 1);
 					}
