@@ -47,14 +47,12 @@ int main(int argc, char **argv)
 	struct sockaddr_in serv;
 	memset(&serv, 0, sizeof(serv));
 	serv.sin_family = AF_INET;
-	serv.sin_addr.s_addr = inet_addr("127.0.0.1");
-	serv.sin_port = htons(atoi(argv[1]));
-
+	serv.sin_addr.s_addr = inet_addr("127.0.0.1"); // or htonl(2130706433);
+	serv.sin_port = htons(atoi(argv[1]));// port range must be between 0 and 65535
 	if (bind(sockfd, (struct sockaddr *)&serv, sizeof(serv)) < 0)
 		return (error_msg("Fatal error"));
 	if (listen(sockfd, 10) < 0)
 		return (error_msg("Fatal error"));
-
 	while (1)
 	{
 		read_set = write_set = active;
@@ -94,7 +92,6 @@ int main(int argc, char **argv)
 				{
 					buf[n] = 0;
 					strcat(clients[fd].msg, buf);
-
 					char *line;
 					while ((line = strchr(clients[fd].msg, '\n')))
 					{
